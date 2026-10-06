@@ -1,1 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Degen Webhook Spammer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1e1f22;
+            color: #dbdee1;
+            padding: 40px;
+        }
+        .card {
+            background-color: #2b2d31;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 400px;
+            margin: auto;
+        }
+        input, textarea, button {
+            width: 100%;
+            margin-top: 10px;
+            padding: 8px;
+            box-sizing: border-box;
+            background: #1e1f22;
+            border: 1px solid #383a40;
+            color: white;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #5865f2;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+        }
+        button:hover {
+            background-color: #4752c4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>🚀 Degen Webhook Sender</h2>
+        <label>Message:</label>
+        <textarea id="message" rows="3">APE IN NOW OR STAY POOR 💎🙌 LFG!! IMG_5554 loaded up.</textarea>
+
+        <label>GitHub Raw Image URL:</label>
+        <input type="text" id="imageUrl" value="https://raw.githubusercontent.com/Rekt-01/Discord-test/refs/heads/main/IMG_5554.jpeg">
+
+        <button onclick="sendWebhook()">Send to Discord</button>
+        <p id="status" style="font-size: 14px; margin-top: 10px;"></p>
+    </div>
+
+    <script>
+        async function sendWebhook() {
+            const webhookUrl = "https://discord.com/api/webhooks/1556065712769077248/YPn8wTAbt3cz7dzftASJnTdqvslt7Iudw9oTTRUoYuXZca2emlsV4SgBtVvy5EpMo3JW";
+            const message = document.getElementById('message').value;
+            const imageUrl = document.getElementById('imageUrl').value;
+            const statusEl = document.getElementById('status');
+
+            const payload = {
+                content: message,
+                embeds: [
+                    {
+                        image: {
+                            url: imageUrl
+                        }
+                    }
+                ]
+            };
+
+            statusEl.innerText = "Sending...";
+            statusEl.style.color = "#faa61a";
+
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    statusEl.innerText = "Success! Check Discord 🔥";
+                    statusEl.style.color = "#23a55a";
+                } else {
+                    const errText = await response.text();
+                    statusEl.innerText = `Error: ${response.status}`;
+                    statusEl.style.color = "#f23f43";
+                    console.error(errText);
+                }
+            } catch (error) {
+                statusEl.innerText = "Network / CORS Error!";
+                statusEl.style.color = "#f23f43";
+                console.error(error);
+            }
+        }
+    </script>
+
+</body>
+</html>
 
