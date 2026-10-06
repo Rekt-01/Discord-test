@@ -3,37 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Degen Webhook Spammer</title>
+    <title>Degen Discord Chat</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #1e1f22;
             color: #dbdee1;
             padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            box-sizing: border-box;
         }
-        .card {
+        .chat-container {
             background-color: #2b2d31;
             padding: 20px;
             border-radius: 8px;
-            max-width: 400px;
-            margin: auto;
-        }
-        <textarea id="message" rows="3">@everyone 🚀 APE IN NOW OR STAY POOR 💎🙌 LFG!! IMG_5554 loaded up.</textarea>
- {
             width: 100%;
-            margin-top: 10px;
-            padding: 8px;
-            box-sizing: border-box;
+            max-width: 450px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        h2 {
+            margin-top: 0;
+            color: #f2f3f5;
+            font-size: 20px;
+            text-align: center;
+        }
+        .chat-box {
+            height: 300px;
+            background: #1e1f22;
+            border: 1px solid #383a40;
+            border-radius: 4px;
+            padding: 10px;
+            overflow-y: auto;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .message {
+            background: #383a40;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            word-break: break-word;
+        }
+        .message.system {
+            background: #2b2d31;
+            color: #949ba4;
+            font-style: italic;
+            text-align: center;
+            font-size: 12px;
+        }
+        .input-group {
+            display: flex;
+            gap: 8px;
+        }
+        input {
+            flex: 1;
+            padding: 10px;
             background: #1e1f22;
             border: 1px solid #383a40;
             color: white;
             border-radius: 4px;
+            outline: none;
+        }
+        input:focus {
+            border-color: #5865f2;
         }
         button {
             background-color: #5865f2;
+            color: white;
             font-weight: bold;
-            cursor: pointer;
+            padding: 10px 16px;
             border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
         button:hover {
             background-color: #4752c4;
@@ -42,65 +89,69 @@
 </head>
 <body>
 
-    <div class="card">
-        <h2>🚀 Degen Webhook Sender</h2>
-        <label>Message:</label>
-        <textarea id="message" rows="3">APE IN NOW OR STAY POOR 💎🙌 LFG!! IMG_5554 loaded up.</textarea>
+    <div class="chat-container">
+        <h2>💬 Discord Degen Chat</h2>
+        
+        <!-- Local chat preview window -->
+        <div class="chat-box" id="chatHistory">
+            <div class="message system">Connected for testing. Type below and hit Enter!</div>
+        </div>
 
-        <label>GitHub Raw Image URL:</label>
-        <input type="text" id="imageUrl" value="https://raw.githubusercontent.com/Rekt-01/Discord-test/refs/heads/main/IMG_5554.jpeg">
-
-        <button onclick="sendWebhook()">Send to Discord</button>
-        <p id="status" style="font-size: 14px; margin-top: 10px;"></p>
+        <!-- Input controls -->
+        <div class="input-group">
+            <input type="text" id="chatInput" placeholder="Type your degen text..." onkeypress="checkEnter(event)">
+            <button onclick="sendChatMessage()">Send</button>
+        </div>
     </div>
 
     <script>
-        async function sendWebhook() {
-            const webhookUrl = "https://discord.com/api/webhooks/1556065712769077248/YPn8wTAbt3cz7dzftASJnTdqvslt7Iudw9oTTRUoYuXZca2emlsV4SgBtVvy5EpMo3JW";
-            const message = document.getElementById('message').value;
-            const imageUrl = document.getElementById('imageUrl').value;
-            const statusEl = document.getElementById('status');
+        // Your Discord Webhook URL
+        const webhookUrl = "https://discord.com/api/webhooks/1556065712769077248/YPn8wTAbt3cz7dzftASJnTdqvslt7Iudw9oTTRUoYuXZca2emlsV4SgBtVvy5EpMo3JW";
 
+        async function sendChatMessage() {
+            const inputField = document.getElementById('chatInput');
+            const chatHistory = document.getElementById('chatHistory');
+            const messageText = inputField.value.trim();
+
+            if (!messageText) return;
+
+            // 1. Show message locally in the browser box immediately
+            const localMsg = document.createElement('div');
+            localMsg.className = 'message';
+            localMsg.innerText = `You: ${messageText}`;
+            chatHistory.appendChild(localMsg);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            // Clear input box
+            inputField.value = "";
+
+            // 2. Send payload to your Discord Webhook
             const payload = {
-                content: message,
-                embeds: [
-                    {
-                        image: {
-                            url: imageUrl
-                        }
-                    }
-                ]
+                content: messageText
             };
-
-            statusEl.innerText = "Sending...";
-            statusEl.style.color = "#faa61a";
 
             try {
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
-                if (response.ok) {
-                    statusEl.innerText = "Success! Check Discord 🔥";
-                    statusEl.style.color = "#23a55a";
-                } else {
-                    const errText = await response.text();
-                    statusEl.innerText = `Error: ${response.status}`;
-                    statusEl.style.color = "#f23f43";
-                    console.error(errText);
+                if (!response.ok) {
+                    console.error("Failed to send to Discord. Status:", response.status);
                 }
             } catch (error) {
-                statusEl.innerText = "Network / CORS Error!";
-                statusEl.style.color = "#f23f43";
-                console.error(error);
+                console.error("Network or CORS error:", error);
+            }
+        }
+
+        // Allow pressing the "Enter" key to send messages
+        function checkEnter(event) {
+            if (event.key === 'Enter') {
+                sendChatMessage();
             }
         }
     </script>
 
 </body>
 </html>
-
